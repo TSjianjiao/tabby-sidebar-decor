@@ -1,339 +1,56 @@
-<div align="center">
+# tabby-sidebar-addition
 
-# 📁 tabby-better-sidebar
+继承自 [tabby-better-sidebar](https://github.com/TooMuhtsh/tabby-better-sidebar) 的 Tabby 侧边栏增强插件，npm 包名为 `tabby-sidebar-addition`，在 Tabby 插件市场中显示为 `sidebar-addition`。
 
-**Enhanced connection sidebar for [Tabby](https://tabby.sh)** — pinned
-favourites, live connection status, drag & drop, and a contextual SFTP browser
-living *inside* the sidebar rather than in a separate docked panel.
+本包是独立发布的衍生版本，不是上游官方发布。
 
-**English** · [Français](README.fr.md)
+## 本次新增
 
-[![License: MIT](https://img.shields.io/github/license/TooMuhtsh/tabby-better-sidebar?color=0d9488)](LICENSE)
-[![Part of Better Tabby](https://img.shields.io/badge/part%20of-Better%20Tabby-0d9488)](#-better-tabby-the-plugin-family)
+### 单击聚焦，双击新建
 
-</div>
-
----
-
-Tabby ships a native profile sidebar, but it is not exported for third-party
-plugins to reuse. This plugin rebuilds it and adds pinned favourites, live
-connection status, drag & drop across folders, named workspaces, SSH tunnel
-management, snippets, notes, and a full SFTP browser that lives in the
-sidebar's own space and follows whichever SSH tab has focus.
-
-**Every block is independent, and each one can be switched off** from the
-plugin's settings tab — if you never use SSH tunnels or workspaces, turn those
-two off and the sidebar gets that much lighter. Nothing is deleted when you do:
-your favourites, workspaces and snippets stay exactly where they are, they just
-stop being displayed.
-
-## 🧩 Better Tabby, the plugin family
-
-This plugin is one half of **Better Tabby**, a small family of independent
-plugins that happen to share one settings tab instead of scattering several:
-
-| | Plugin | Adds |
+| 操作 | 该配置已有打开的终端 | 该配置没有打开的终端 |
 |---|---|---|
-| 📁 | **tabby-better-sidebar** *(this repo)* | Pinned favourites, live connection status, drag & drop, workspaces, contextual SFTP browser |
-| 🔐 | **[tabby-better-vault](https://github.com/TooMuhtsh/tabby-better-vault)** | Automatic vault unlock via your OS keychain |
+| 单击 | 聚焦已有终端标签，不新建 | 不启动终端 |
+| 双击 | 新建一个终端标签 | 新建一个终端标签 |
 
-**Neither plugin requires the other.** Install just this one and it behaves
-exactly as if the other didn't exist — its own settings tab, nothing shared.
-Install both, and they elect one of themselves to host a single **Better
-Tabby** tab, each still rendering its own page inside it. No npm dependency
-between the two repos, no shared code: just a small string contract
-(`BetterPanelContribution:<id>`) each plugin recognises independently.
+配置树和“最近启动”列表使用同一套行为：
 
-## ✨ The profile tree
+- 单击只回到已经打开的终端；没有打开终端时不会启动新的会话。行选中和多选的原有逻辑保留。
+- 双击始终新建一个终端，不受是否已有终端影响。
+- 同一配置打开多个终端时，优先聚焦当前已经聚焦的标签，其次是在线会话，最后才是已断开的标签。
+- `Ctrl`/`Shift` 单击仍用于多选，不会把焦点切到终端。
+- 行尾的播放按钮和右键菜单里的启动项仍是显式启动，单击会新建终端。
 
-- **Pinned favourites**, for both profiles and folders
-- **Live connection status** per profile, with an optional latency indicator —
-  a timed SFTP round trip on the session's own channel, not an ICMP ping, so it
-  measures the delay you actually feel when typing
-- **Active sessions** section at the top, one row per pane rather than per tab,
-  with uptime, a click to focus and a shortcut to that session's SFTP view
-- **Recent profiles** — the five most recently launched, all types together
-  (off by default)
-- **Drag & drop** reordering — profiles and folders, including moving a profile
-  between folders and re-parenting a folder
-- **Move or copy folders without dragging**: right-click a folder, then
-  *Manage*, **Move folder...** or **Copy folder...**, pick a destination and
-  confirm. Subfolders and profiles are included, and a copy keeps the local
-  connection settings, notes, tags and snippet attachments
-- **Workspaces**: hide profiles and folders per workspace (personal / work /
-  project), each with its own favourites, its own sibling order, its own icon
-  and an optional contextual colour; a tabs-or-dropdown selector, and one-click
-  JSON export/import
-- **"Active" tab**: narrows the list to the profiles with an open tab
-  (disconnected ones included), within the selected workspace — on "All" or
-  with the workspaces off, every open session
-- **Multiple selection**, for acting on several profiles at once
-- **SSH tunnels**: a panel of what Tabby is currently forwarding, badges on the
-  profiles that declare tunnels, and a modal to add, edit or remove them —
-  including a memory of tunnels a dropped session failed to bring back
-- **Quick filter bar**, searching name, description, host and username,
-  including inside what a workspace currently hides. Exact text by default,
-  name matches listed first; approximate search is a setting
-- **Collapse all / expand all** in one click, from the button next to the
-  filter field or the right click on the tree's empty space: every folder at
-  every depth, plus the active sessions, recent profiles and tunnels blocks
-- **Right-click menus**, grouped into `Manage` and `More` submenus so they stay
-  short: create and delete folders and profiles, clone a profile, rename, pick
-  an icon, attach snippets and notes, share a folder, hide it in the current
-  workspace
+## 安装
 
-## 🎨 Icons
+在 Tabby 的插件目录中安装：
 
-The icon picker searches three sources at once, entirely offline — no network
-call is ever made:
-
-- **Font Awesome**, the set Tabby itself uses
-- **[Iconify](https://iconify.design)** Material Design Icons and Tabler, for
-  generic glyphs
-- **[dashboard-icons](https://github.com/homarr-labs/dashboard-icons)** —
-  around 2 400 logos of self-hosted services (Proxmox, Pi-hole, Nextcloud and
-  the like), far more telling than a generic glyph for naming a real estate of
-  machines. Icons that ship several palettes offer them as small dots on their
-  tile, so a dark logo can be swapped for its light variant on a dark theme.
-
-Recently used icons stay at hand, any icon can be pinned as a favourite with a
-right click, and custom SVGs can be imported (sanitised with
-[DOMPurify](https://github.com/cure53/DOMPurify)).
-
-The two large icon collections are loaded **on the first search only**, in a
-separate bundle, so they cost nothing at startup.
-
-## 📂 SFTP
-
-The browser replaces the profile tree in the sidebar's own space and follows
-whichever SSH tab has focus — each tab remembers where it was, and the view can
-be **frozen** on one session so it stops following the focused tab.
-
-- **Configurable columns** (size, date, octal and long permissions, type,
-  extension), folders-first sorting, hidden files toggle, zebra striping
-- **Date format of your choice**: Tabby's language, day/month/year
-  (`08/10/2026`) or ISO 8601 (`2026-10-08`)
-- **Favorite folders, per profile** — the star button lists them and adds or
-  removes the current folder; one click jumps to a saved path
-- **Sort by name, date or size** — click a column header to sort on it, click
-  again to flip the direction; date and size start with the newest and the
-  biggest at the top. Also in the header's right-click menu, for a column
-  that is hidden. The choice is remembered
-- **Multiple selection**, files *and* folders, for bulk delete and move
-- **Chunked loading** of large directory listings
-- **Double-click opens a file in a code editor**, never through the OS file
-  association — so double-clicking an executable edits it instead of running it.
-  Saving sends the file back automatically, checking first that the remote copy
-  has not changed in the meantime, and restoring its permissions afterwards.
-  Symbolic links are resolved, so it is the target that gets edited, not the
-  link
-- **"Open with…"** stays available, but only from the context menu
-- **Create, rename and delete** entries — `Delete` key included, with an HTML
-  confirmation whose default button you choose in the settings
-- **Move entries** by dragging them onto a folder — a server-side rename,
-  nothing transits
-- **Drag a file out to the OS**: the download starts when you drop it, wherever
-  you dropped it
-- **Copy, cut and paste files**, optional and off by default.
-  <kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>Ctrl</kbd>+<kbd>X</kbd> and
-  <kbd>Ctrl</kbd>+<kbd>V</kbd> (<kbd>Cmd</kbd> on macOS) or the context menu,
-  within a session or from one session to another, and files copied in your
-  file manager paste too. A name already taken asks whether to keep both,
-  overwrite (a file only) or skip. <kbd>Enter</kbd> opens the selection and
-  <kbd>Backspace</kbd> goes up a folder. On Windows, Explorer only shares one
-  copied file at a time with Tabby. Adapted from the fork by
-  [miller806](https://github.com/miller806/tabby-better-sidebar-miller)
-- **Transfer manager** at the bottom of the sidebar — progress, speed, ETA and
-  elapsed time per transfer, an arrival check that flags a copy that did not
-  land whole, cancel confirmation, visible from both views, hidden when empty
-- **Optional auto-refresh** of the listing, off by default
-- **Auto-return** to the profile view once no tab has an active SFTP session
-
-## 📝 Snippets, notes and sharing
-
-- **Snippets** — a command written once, attached to a profile, a folder, or
-  everything, and reusable wherever it is attached. Supports `{{name}}`
-  placeholders (required) and `{{name=default}}` (pre-filled), inherits down
-  the folder tree, and can be set to write into the terminal, write and press
-  Enter, or launch the session first
-- **Notes** — a free-form memo per profile or folder, with a badge in the tree
-- **Share a folder** through the clipboard, as JSON, at two levels: *with*
-  connection details for your own machines, or *without credentials* for
-  someone else. Passwords, login scripts, proxy commands and vault key
-  references never travel, at either level; what was removed is stated in the
-  notice, and the JSON is re-checked field by field when pasted back. Tags
-  travel with their profiles at both levels, and notes only *with* connection
-  details, each while its feature is switched on
-
-## 🌍 Languages
-
-The interface follows Tabby's language — English, plus French, Spanish,
-German and Simplified Chinese, covering the whole plugin: profile tree, context
-menus, active sessions and tunnels, SFTP browser, dialogs, transfers and the
-settings tab. Any other locale falls back to English.
-
-## Elsewhere
-
-- <kbd>Ctrl</kbd>+<kbd>Enter</kbd> inserts a line break in the terminal instead
-  of submitting
-- In the search field, the arrows move through the results and
-  <kbd>Enter</kbd> opens the highlighted one in a new tab;
-  <kbd>Shift</kbd>+<kbd>Enter</kbd> opens it in a split of the active tab
-- <kbd>Alt</kbd>+<kbd>B</kbd> hides the sidebar and brings it back, without
-  closing anything — open SFTP views, the filter and the selection are still
-  there. The binding can be changed in **Settings → Hotkeys**
-- A dedicated settings tab under Tabby's own settings (shared as **Better
-  Tabby** when the vault plugin is also installed)
-
-## 📦 Installation
-
-**Requires Tabby 1.0.231 or newer.** Developed and tested against **Tabby
-1.0.238**, the current stable release.
-
-In Tabby, open **Settings → Plugins**, search for `better-sidebar` and install
-it, then restart Tabby completely.
-
-<details>
-<summary>With npm directly</summary>
-
-```bash
-# In Tabby's plugin directory: %APPDATA%\tabby\plugins on Windows,
-# ~/.config/tabby/plugins on macOS/Linux
-npm install tabby-better-sidebar
-```
-
-Then restart Tabby completely.
-
-</details>
-
-## ⚙️ Configuration
-
-Everything lives in **Settings → Better Sidebar** (or **Better Tabby → 📁
-Sidebar** if `tabby-better-vault` is also installed), split into *General*,
-*Features* and *Snippets*. On disk, the settings sit under `sidebarPlus` in
-Tabby's own `config.yaml`.
-
-<details>
-<summary>Every setting, with its default</summary>
-
-**Blocks** — each one switches on independently:
-
-| Setting | Default | Effect |
-|---|---|---|
-| `enabled` | `true` | Shows the sidebar. Off, it disappears without uninstalling anything; this settings page stays reachable |
-| `showActiveSessions` | `true` | Open SSH connections, at the top of the sidebar |
-| `activeSessionsPosition` | `top` | Where the active sessions sit: `top`, or `bottom` under the profiles and above the footer |
-| `showRecentProfiles` | `false` | The five most recently launched profiles |
-| `showTunnels` | `true` | Port forwarding panel and badges on the profiles |
-| `showWorkspaces` | `true` | Workspace bar above the list |
-| `showFilter` | `true` | Search field and its shortcut |
-| `searchSplitSide` | `r` | Side of the split opened by Shift+Enter from the search: `r`, `b`, `l` or `t` |
-| `searchClearOnLaunch` | `false` | Clear the search after a result is opened from the keyboard |
-| `searchFuzzy` | `false` | Approximate search, which also finds the letters in order even far apart. Off, the exact text whatever the case |
-| `showActiveToggle` | `true` | "Active" tab: only the profiles with an open tab |
-| `wrapNames` | `false` | Long names on up to two lines instead of one cut-off line |
-| `wrapNamesUnlimited` | `false` | With `wrapNames` on, no line limit. The whole name shows, however long |
-| `compactRows` | `false` | Shorter profile and folder rows with a narrower indent. Icons and `wrapNames` keep working |
-| `showSftp` | `true` | The SFTP tab of the sidebar and its panel |
-| `showTransfers` | `true` | Transfer manager at the bottom of the sidebar |
-| `showSnippets` | `true` | The *Snippets* entry of the right click and its tab |
-| `showNotes` | `true` | The *note* entry of the right click and its badge |
-| `showTags` | `false` | Tags on profiles. The *tags* entry of the right click, colored pills after the name, and the search in tags. Off, the tags are kept |
-
-Turning a block off also stops its background work — no tab scanning, no
-latency probe, no transfer tracking for a panel nobody is looking at.
-
-**Behaviour:**
-
-| Setting | Default | Effect |
-|---|---|---|
-| `hideNativeTransfersMenu` | `true` | Hides Tabby's own transfers menu, which shows the same transfers |
-| `hideImportedSsh` | `false` | Hides the folder Tabby imports from `~/.ssh/config` from the tree and the search. Its servers stay in the recent profiles, the active sessions and Pinned |
-| `workspaceSelectorMode` | `tabs` | Workspace bar as tabs, or as a dropdown list |
-| `pingIntervalSeconds` | `0` | Latency probe interval; `0` disables it |
-| `sftpPlacement` | `sidebar` | Where the SFTP view lives: `sidebar`, in place of the profiles, or `right`, a column on the right of the window that the SFTP tab of the sidebar opens and closes. Its width is kept per machine |
-| `sftpAutoRefreshSeconds` | `0` | Re-reads the current folder on a cycle; `0` disables it |
-| `sftpAutoReturnToProfiles` | `true` | Returns to the profile view when no SSH session is open any more |
-| `sftpEditorPath` | *(empty)* | Program opened on double-click. Empty, Windows decides |
-| `sftpDeleteDefaultButton` | `cancel` | Which button <kbd>Enter</kbd> activates in the SFTP delete confirmation |
-| `sftpDragOutFolders` | `false` | Allows dragging a *folder* out to the OS, not just a file |
-| `sftpClipboard` | `false` | Copy, cut and paste of files in the SFTP browser, paste of files copied in the system file manager, <kbd>Enter</kbd> and <kbd>Backspace</kbd> navigation |
-| `sftpColumns` | `size`, `date`, `mode` | Columns shown in the SFTP listing |
-| `sftpFoldersFirst` | `true` | Sorts folders before files |
-| `sftpFavorites` | *(empty)* | Favorite remote folders, keyed by profile id |
-| `sftpSortKey` | `name` | Column the listing is sorted on: `name`, `date` or `size` |
-| `sftpSortDescending` | `false` | Sort direction |
-| `sftpDateFormat` | `locale` | How dates are written in the listing: `locale` (Tabby's language), `dmy` (`08/10/2026`) or `iso` (`2026-10-08`); the tooltip adds the time |
-| `sftpShowHidden` | `true` | Shows dot-files |
-| `sftpColumnBorders` | `true` | Column separators in the listing |
-| `sftpZebra` | `true` | Alternating row background |
-
-Your favourites, workspaces, snippets, notes, custom icons and orderings are
-stored under the same key. They are data, not settings, and nothing here
-deletes them.
-
-</details>
-
-## ⚠️ Known limitations
-
-- **Remote editing has no locking.** The plugin checks that the remote file has
-  not changed before sending your edit back, and refuses to overwrite if it
-  has — but two people editing the same file at the same time is still last
-  one wins.
-- **Dragging out to a target that does not understand a deferred file offer**
-  (Windows Terminal, MobaXterm) does nothing at all, silently. The source
-  cannot detect it.
-- **A profile shared through the clipboard keeps its host and port.** That is
-  deliberate — it is what makes the folder useful — but it means the JSON
-  describes your network. Use *Copy without credentials* when that matters.
-- **Local shell profiles are never shared**: their options are a command to
-  execute, which is precisely what should not arrive through a clipboard.
-
-## 🛠️ Development
-
-```bash
-git clone https://github.com/TooMuhtsh/tabby-better-sidebar
-cd tabby-better-sidebar
-npm install --ignore-scripts   # avoids postinstall steps that build native code needlessly here
-npm run watch
-```
-
-Then, with Tabby closed, link the folder into Tabby's plugin directory. Do not
-use the `TABBY_PLUGINS` environment variable — it is broken on Windows:
+Windows：
 
 ```powershell
-New-Item -ItemType Junction -Path "$env:APPDATA\tabby\plugins\node_modules\tabby-better-sidebar" -Target "<path-to-this-folder>"
+Set-Location "$env:APPDATA\tabby\plugins"
+npm install tabby-sidebar-addition
 ```
 
-Restart Tabby completely after any rebuild — reloading the window is not enough,
-since Tabby's plugin loader state is global to the process.
+macOS / Linux：
 
-## Related
+```bash
+cd ~/.config/tabby/plugins
+npm install tabby-sidebar-addition
+```
 
-[**tabby-better-vault**](https://github.com/TooMuhtsh/tabby-better-vault) — the
-sibling plugin, see [Better Tabby](#-better-tabby-the-plugin-family) above.
+然后完全退出并重新启动 Tabby。只重载窗口不够，Tabby 需要重新加载插件。
 
-[**AI governance docs**](https://toomuhtsh.github.io/tabby-better-sidebar/.AIRules/README.html) —
-this plugin is developed with an AI assistant under a written governance
-charter, and the full working dossier is public: invariants and numbered
-pitfalls, development journal, roadmap and a register of everything delivered,
-browsable as a small static site.
+也可以在 **Settings → Plugins** 中搜索 `sidebar-addition` 或 `tabby-sidebar-addition` 安装；如果搜索尚未收录，使用上面的 npm 命令。
 
-## Credits
+安装前请先卸载上游包 `tabby-better-sidebar`，两个包会注册同一个侧边栏设置页，不能同时启用。
 
-- [Tabby](https://github.com/Eugeny/tabby) by Eugeny — the terminal this plugin
-  extends; its native profile sidebar is the starting point of this one
-  (MIT, see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md))
-- [miller806](https://github.com/miller806/tabby-better-sidebar-miller), for the
-  MIT fork several features were adapted from: lighter event handling, transfer
-  progress and session badge, active sessions at the bottom, hiding the imported
-  ~/.ssh/config folder, compact rows, server tags, SFTP copy and paste and the
-  right-hand SFTP column. Thank you!
-- [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) — the
-  service logo collection (Apache-2.0)
-- [Iconify](https://iconify.design) Material Design Icons and Tabler, and
-  [DOMPurify](https://github.com/cure53/DOMPurify)
+## 配置
 
-## License
+设置仍在 **Settings → Better Sidebar**（同时安装 `tabby-better-vault` 时，在 **Better Tabby → 📁 Sidebar**）。其余功能、配置项和快捷键继承上游，见 [上游 README](https://github.com/TooMuhtsh/tabby-better-sidebar#readme)。
 
-MIT — see [LICENSE](LICENSE).
+## 来源与许可
+
+- 上游项目：[TooMuhtsh/tabby-better-sidebar](https://github.com/TooMuhtsh/tabby-better-sidebar)
+- 许可证：MIT，见 [LICENSE](LICENSE)
+- 第三方组件与图标声明：[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)

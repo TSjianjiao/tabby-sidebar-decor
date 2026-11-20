@@ -118,7 +118,8 @@
             //- de relance et rien d'autre.
             a.recent-profile(
                 *ngFor='let profile of recentProfiles',
-                (click)='launchRecentProfile(profile, $event)',
+                (click)='focusRecentProfile(profile, $event)',
+                (dblclick)='launchRecentProfile(profile, $event)',
                 [title]='profile.name',
                 href='#'
             )

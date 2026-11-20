@@ -1,7 +1,19 @@
 # Changelog
 
-All notable changes to `tabby-better-sidebar` are documented here, one entry
-per npm release. Dates are the npm publication dates.
+All notable changes to `tabby-sidebar-addition` are documented here, one entry
+per npm release. Entries below 1.0.12 are inherited from
+`tabby-better-sidebar`. Dates are the npm publication dates.
+
+## 1.0.12 (2026-11-20)
+
+- **Added**: single-clicking a profile, or a row of the "Recently launched"
+  block, now focuses a terminal that is already open instead of launching a
+  second one. A profile with no open terminal launches nothing on a single
+  click; double-click still opens a new session. Modifier clicks keep their
+  multi-selection meaning, and the play button and context menu stay explicit
+  launch actions.
+- **Changed**: the package is published as `tabby-sidebar-addition`, a fork of
+  `tabby-better-sidebar`.
 
 ## 1.0.11 (2026-11-17)
 

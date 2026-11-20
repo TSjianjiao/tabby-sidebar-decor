@@ -1135,7 +1135,13 @@ export class SidebarPlusTreeComponent implements OnInit, OnDestroy, AfterViewChe
         window.localStorage.sidebarPlusRecentProfilesCollapsed = this.recentProfilesCollapsed
     }
 
-    /** The row's whole click target — a relaunch, nothing else (no context menu, no favorite, no status: a pure re-engagement shortcut, per ROADMAP #historique-profils). */
+    /** Single-click on a recent profile: return to its open terminal, never launch a second one. */
+    focusRecentProfile (profile: PartialProfile<Profile>, event: MouseEvent): void {
+        event.preventDefault()
+        this.focusOpenTerminalForProfile(profile)
+    }
+
+    /** Double-click on a recent profile — an explicit relaunch, nothing else (no context menu, no favorite, no status: a pure re-engagement shortcut, per ROADMAP #historique-profils). */
     launchRecentProfile (profile: PartialProfile<Profile>, event: MouseEvent): void {
         event.preventDefault()
         void this.launchProfile(profile)
@@ -3631,6 +3637,12 @@ export class SidebarPlusTreeComponent implements OnInit, OnDestroy, AfterViewChe
      * in or out, Shift extends from the anchor. Double-click still launches the
      * profile, so selecting costs nothing.
      *
+     * A plain click also returns to a terminal this profile already has open,
+     * without opening a second one. No open terminal means no launch: starting
+     * a session stays on double-click and on the play button. Modifier clicks
+     * keep their selection-only meaning so multi-selection never moves the
+     * focus away from the sidebar.
+     *
      * The tick boxes this replaced were dropped at the user's request after
      * manual testing — the row highlight plus the selection bar carry the state
      * on their own, and the row contents no longer pay a permanent indent for a
@@ -3644,6 +3656,7 @@ export class SidebarPlusTreeComponent implements OnInit, OnDestroy, AfterViewChe
         if (!profile.id) {
             return
         }
+        const selectionOnly = event.shiftKey || event.ctrlKey || event.metaKey
         if (event.shiftKey) {
             this.extendSelectionTo(profile, group)
         } else if (event.ctrlKey || event.metaKey) {
@@ -3655,6 +3668,53 @@ export class SidebarPlusTreeComponent implements OnInit, OnDestroy, AfterViewChe
         } else {
             this.selectedProfileIds = new Set([profile.id])
             this.selectionAnchor = { groupId: group.id, profileId: profile.id }
+        }
+        if (!selectionOnly) {
+            this.focusOpenTerminalForProfile(profile)
+        }
+    }
+
+    /**
+     * Brings an already-open terminal of this profile back to the front.
+     *
+     * Any open tab counts, not only a live session: a tab that lost its
+     * connection still exists, with its reconnect banner, and focusing it lets
+     * the user act on it instead of opening yet another tab. A live tab wins
+     * when the profile has several, so the ordinary case does not land on a
+     * dead one; the tab already in front wins over both, so re-clicking a
+     * profile the user is looking at changes nothing.
+     */
+    private focusOpenTerminalForProfile (profile: PartialProfile<Profile>): void {
+        if (!profile.id) {
+            return
+        }
+        const active = this.app.activeTab
+        const activeTab = active instanceof SplitTabComponent ? active.getFocusedTab() : active
+        let live: BaseTerminalTabComponent<any>|null = null
+        let fallback: BaseTerminalTabComponent<any>|null = null
+        for (const tab of getAllOpenTabs(this.app)) {
+            if (!(tab instanceof BaseTerminalTabComponent)) {
+                continue
+            }
+            if ((tab as unknown as ProfileBackedTab).profile?.id !== profile.id) {
+                continue
+            }
+            if (tab === activeTab) {
+                return
+            }
+            if (active instanceof SplitTabComponent && active.getAllTabs().includes(tab)) {
+                focusTab(this.app, tab)
+                return
+            }
+            if ((tab as unknown as ProfileBackedTab).session) {
+                live ??= tab
+            } else {
+                fallback ??= tab
+            }
+        }
+        const target = live ?? fallback
+        if (target) {
+            focusTab(this.app, target)
         }
     }
 
